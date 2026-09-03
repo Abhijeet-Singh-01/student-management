@@ -62,7 +62,8 @@ E:\student-management\
 │   │   ├── analyticsService.js  # Transparent data analysis and recommendations
 │   │   ├── exportService.js     # RFC 4180 CSV and PDF document generators
 │   │   ├── authService.js       # Bcrypt password hashing & JWT generation
-│   │   └── cacheService.js      # Redis in-memory cache layer with graceful fallback
+│   │   ├── cacheService.js      # Redis in-memory cache layer with graceful fallback
+│   │   └── emailService.js      # Responsive HTML welcome notifications via Nodemailer
 │   ├── middleware/
 │   │   ├── validate.js          # Input validation for student payloads
 │   │   ├── errorHandler.js      # Centralized error and conflict handling
@@ -275,11 +276,12 @@ All 26 integration tests pass:
   ✅ PASS: RBAC: POST /students rejects Student role with 403 Forbidden
   ✅ PASS: POST /students rejects invalid input with 400 Bad Request
   ✅ PASS: POST /students registers a valid new student
+  ✅ PASS: Email Notification: Dispatches styled HTML welcome notification on student registration
   ✅ PASS: PUT /students/:id updates student attributes
   ✅ PASS: DELETE /students/:id deletes student
   ✅ PASS: GET /students/export/csv downloads RFC 4180 CSV spreadsheet
   ✅ PASS: GET /students/export/pdf streams valid binary PDF report
 ==================================================
-📊 Test Summary: 26 Passed | 0 Failed
+📊 Test Summary: 27 Passed | 0 Failed
 ==================================================
 ```

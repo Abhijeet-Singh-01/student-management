@@ -261,7 +261,37 @@ async function runTests() {
         const data = await res.json();
         assert.ok(data.success);
         assert.strictEqual(data.data.name, "Test Runner Student");
+        assert.ok(data.notification);
+        assert.strictEqual(data.notification.sent, true);
         testStudentId = data.data.id;
+    });
+
+    await test("Email Notification: Dispatches styled HTML welcome notification on student registration", async () => {
+        const uniqueEmail = `email.verify.${Date.now()}@example.com`;
+        const res = await fetch(`${BASE_URL}/students`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${adminToken}`
+            },
+            body: JSON.stringify({
+                name: "Notification Verifier",
+                email: uniqueEmail,
+                age: 21,
+                course: "AI"
+            })
+        });
+        assert.strictEqual(res.status, 201);
+        const data = await res.json();
+        assert.ok(data.notification);
+        assert.strictEqual(data.notification.sent, true);
+        assert.strictEqual(data.notification.recipient, uniqueEmail);
+
+        // Clean up created student
+        await fetch(`${BASE_URL}/students/${data.data.id}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${adminToken}` }
+        });
     });
 
     await test("PUT /students/:id updates student attributes", async () => {

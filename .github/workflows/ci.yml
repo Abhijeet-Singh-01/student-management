@@ -81,7 +81,7 @@ jobs:
             sleep 1
           done
 
-      - name: 🧪 Execute 26 Automated Integration Tests
+      - name: 🧪 Execute 27 Automated Integration Tests
         env:
           TEST_URL: http://localhost:3000
         run: npm test

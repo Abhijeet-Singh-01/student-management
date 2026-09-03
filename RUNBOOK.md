@@ -32,8 +32,9 @@ graph TD
 | **Auth Middleware** | [`src/middleware/auth.js`](file:///E:/student-management/src/middleware/auth.js) | Verifies JWT tokens (`authenticateToken`) and enforces roles (`requireRole`). |
 | **Security Middleware** | [`src/middleware/security.js`](file:///E:/student-management/src/middleware/security.js) | Helmet HTTP headers & sliding-window rate limiters. |
 | **Cache Service** | [`src/services/cacheService.js`](file:///E:/student-management/src/services/cacheService.js) | Sub-millisecond Redis cache with automatic invalidation on mutations. |
+| **Email Service** | [`src/services/emailService.js`](file:///E:/student-management/src/services/emailService.js) | Responsive HTML welcome notification delivery via Nodemailer. |
 | **Export Service** | [`src/services/exportService.js`](file:///E:/student-management/src/services/exportService.js) | Formats RFC 4180 CSV spreadsheets and streams vector PDF reports. |
-| **Testing Suite** | [`test.js`](file:///E:/student-management/test.js) | 26 automated integration tests validating health, cache, CRUD, auth, and exports. |
+| **Testing Suite** | [`test.js`](file:///E:/student-management/test.js) | 27 automated integration tests validating health, cache, CRUD, auth, email, and exports. |
 
 ---
 
@@ -60,7 +61,7 @@ npm start
 ```
 *Server runs on [http://localhost:3000](http://localhost:3000).*
 
-### 4. Run the 26-Test Automated Suite
+### 4. Run the 27-Test Automated Suite
 ```powershell
 npm test
 ```

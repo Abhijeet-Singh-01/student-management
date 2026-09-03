@@ -2,6 +2,7 @@ const studentService = require("../services/studentService");
 const analyticsService = require("../services/analyticsService");
 const exportService = require("../services/exportService");
 const cacheService = require("../services/cacheService");
+const emailService = require("../services/emailService");
 
 class StudentController {
     // GET /students or GET /api/v1/students
@@ -48,10 +49,19 @@ class StudentController {
     async create(req, res, next) {
         try {
             const newStudent = await studentService.createStudent(req.body);
+
+            // Send styled welcome email notification
+            const emailResult = await emailService.sendWelcomeEmail(newStudent);
+
             res.status(201).json({
                 success: true,
                 message: "Student registered successfully.",
-                data: newStudent
+                data: newStudent,
+                notification: {
+                    type: "email",
+                    sent: emailResult ? emailResult.sent : false,
+                    recipient: newStudent.email
+                }
             });
         } catch (error) {
             next(error);
