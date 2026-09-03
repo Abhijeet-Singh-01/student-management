@@ -124,12 +124,22 @@ npm run migrate
 ```
 
 ### 5. Run Automated Tests
-Execute the 13 automated integration tests:
+Execute the 27 automated integration tests:
 ```powershell
 npm test
 ```
 
-### 6. Start the Server
+### 6. Create Database Backup Snapshot
+```powershell
+npm run backup
+```
+
+### 7. Restore Database Snapshot
+```powershell
+npm run restore
+```
+
+### 8. Start the Server
 ```powershell
 npm start
 ```

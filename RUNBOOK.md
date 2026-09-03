@@ -66,6 +66,21 @@ npm start
 npm test
 ```
 
+### 5. Create Database Backup Snapshot
+```powershell
+npm run backup
+```
+*Generates an atomic snapshot of all tables into `backups/snapshot-<TIMESTAMP>.json`.*
+
+### 6. Restore Database from Snapshot
+```powershell
+# Restore the latest snapshot automatically
+npm run restore
+
+# Or restore a specific snapshot
+node scripts/restore.js backups/snapshot-2026-09-03T13-21-12-066Z.json
+```
+
 ---
 
 ## 🔑 3. Authentication & User Accounts (RBAC)
