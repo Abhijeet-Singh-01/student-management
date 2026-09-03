@@ -36,12 +36,27 @@ async function runTests() {
         assert.ok(text.includes("Student Management API is running"));
     });
 
-    await test("GET /health reports UP and connected database", async () => {
+    await test("GET /health reports UP, connected database, and cache status", async () => {
         const res = await fetch(`${BASE_URL}/health`);
         assert.strictEqual(res.status, 200);
         const data = await res.json();
         assert.strictEqual(data.status, "UP");
         assert.strictEqual(data.database.status, "Connected");
+        assert.ok(data.cache);
+    });
+
+    await test("Redis Cache: Second GET /students serves sub-millisecond cached data", async () => {
+        const res1 = await fetch(`${BASE_URL}/students`);
+        assert.strictEqual(res1.status, 200);
+        const data1 = await res1.json();
+
+        const start = Date.now();
+        const res2 = await fetch(`${BASE_URL}/students`);
+        const duration = Date.now() - start;
+        assert.strictEqual(res2.status, 200);
+        const data2 = await res2.json();
+        assert.strictEqual(data1.length, data2.length);
+        assert.ok(duration < 150, "Cached response should be served quickly");
     });
 
     await test("Security Headers: Helmet sets protection headers", async () => {

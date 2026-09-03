@@ -1,6 +1,7 @@
 const studentService = require("../services/studentService");
 const analyticsService = require("../services/analyticsService");
 const exportService = require("../services/exportService");
+const cacheService = require("../services/cacheService");
 
 class StudentController {
     // GET /students or GET /api/v1/students
@@ -103,7 +104,17 @@ class StudentController {
     // GET /students/insights
     async getInsights(req, res, next) {
         try {
+            const cached = await cacheService.get("students:insights");
+            if (cached) {
+                return res.json({
+                    success: true,
+                    data: cached
+                });
+            }
+
             const insights = await analyticsService.getInsights();
+            await cacheService.set("students:insights", insights, 180);
+
             res.json({
                 success: true,
                 data: insights

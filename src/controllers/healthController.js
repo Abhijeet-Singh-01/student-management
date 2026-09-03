@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const cacheService = require("../services/cacheService");
 
 class HealthController {
     // GET /health
@@ -15,6 +16,7 @@ class HealthController {
                     status: "Connected",
                     latency_ms: dbLatency
                 },
+                cache: cacheService.getStatus(),
                 uptime_seconds: Math.floor(process.uptime()),
                 memory_usage_mb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
             });

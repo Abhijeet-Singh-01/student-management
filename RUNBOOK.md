@@ -31,20 +31,21 @@ graph TD
 | **Database Migration** | [`src/database/migrate.js`](file:///E:/student-management/src/database/migrate.js) | Non-destructive DDL migrations, relational indexes, and account seeds. |
 | **Auth Middleware** | [`src/middleware/auth.js`](file:///E:/student-management/src/middleware/auth.js) | Verifies JWT tokens (`authenticateToken`) and enforces roles (`requireRole`). |
 | **Security Middleware** | [`src/middleware/security.js`](file:///E:/student-management/src/middleware/security.js) | Helmet HTTP headers & sliding-window rate limiters. |
+| **Cache Service** | [`src/services/cacheService.js`](file:///E:/student-management/src/services/cacheService.js) | Sub-millisecond Redis cache with automatic invalidation on mutations. |
 | **Export Service** | [`src/services/exportService.js`](file:///E:/student-management/src/services/exportService.js) | Formats RFC 4180 CSV spreadsheets and streams vector PDF reports. |
-| **Testing Suite** | [`test.js`](file:///E:/student-management/test.js) | 25 automated integration tests validating health, CRUD, auth, and exports. |
+| **Testing Suite** | [`test.js`](file:///E:/student-management/test.js) | 26 automated integration tests validating health, cache, CRUD, auth, and exports. |
 
 ---
 
 ## 🚀 2. Quick-Start Commands
 
-### 1. Start the PostgreSQL Database (Docker)
+### 1. Start the PostgreSQL & Redis Containers (Docker)
 ```powershell
-# Option A: Start existing container
-docker start postgres-db
+# Option A: Start existing containers
+docker start postgres-db redis-cache
 
 # Option B: Spin up multi-container environment via Docker Compose
-docker compose up -d postgres
+docker compose up -d postgres redis
 ```
 
 ### 2. Run Database Migrations & Seeding
@@ -59,7 +60,7 @@ npm start
 ```
 *Server runs on [http://localhost:3000](http://localhost:3000).*
 
-### 4. Run the 25-Test Automated Suite
+### 4. Run the 26-Test Automated Suite
 ```powershell
 npm test
 ```

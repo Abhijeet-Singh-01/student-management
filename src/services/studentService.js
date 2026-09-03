@@ -1,8 +1,15 @@
 const pool = require("../config/db");
+const cacheService = require("./cacheService");
 
 class StudentService {
     // Get all students with search, filters, sorting, and pagination
     async getAllStudents(query = {}) {
+        const cacheKey = `students:list:${JSON.stringify(query)}`;
+        const cached = await cacheService.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
+
         const {
             search,
             course,
@@ -101,7 +108,7 @@ class StudentService {
             params.push(limitNum, offset);
 
             const result = await pool.query(dataQuery, params);
-            return {
+            const paginatedResult = {
                 data: result.rows,
                 pagination: {
                     total,
@@ -110,15 +117,24 @@ class StudentService {
                     totalPages: Math.ceil(total / limitNum)
                 }
             };
+            await cacheService.set(cacheKey, paginatedResult, 120);
+            return paginatedResult;
         }
 
         // Return plain rows for default unpaginated queries (100% backward compatible)
         const result = await pool.query(dataQuery, params);
+        await cacheService.set(cacheKey, result.rows, 120);
         return result.rows;
     }
 
     // Get student by ID with joined department and enrolled courses
     async getStudentById(id) {
+        const cacheKey = `students:detail:${id}`;
+        const cached = await cacheService.get(cacheKey);
+        if (cached) {
+            return cached;
+        }
+
         const studentQuery = `
             SELECT 
                 s.id,
@@ -164,6 +180,7 @@ class StudentService {
         const enrollResult = await pool.query(enrollQuery, [id]);
         student.enrolled_courses = enrollResult.rows;
 
+        await cacheService.set(cacheKey, student, 180);
         return student;
     }
 
@@ -196,6 +213,7 @@ class StudentService {
             gpa ? parseFloat(gpa) : 3.50
         ]);
 
+        await cacheService.delByPattern("students:*");
         return result.rows[0];
     }
 
@@ -242,6 +260,7 @@ class StudentService {
             id
         ]);
 
+        await cacheService.delByPattern("students:*");
         return result.rows[0];
     }
 
@@ -249,7 +268,11 @@ class StudentService {
     async deleteStudent(id) {
         const query = "DELETE FROM students WHERE id = $1 RETURNING *";
         const result = await pool.query(query, [id]);
-        return result.rows.length > 0 ? result.rows[0] : null;
+        if (result.rows.length > 0) {
+            await cacheService.delByPattern("students:*");
+            return result.rows[0];
+        }
+        return null;
     }
 }
 

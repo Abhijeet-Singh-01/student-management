@@ -61,7 +61,8 @@ E:\student-management\
 │   │   ├── studentService.js    # Parameterized SQL queries for students
 │   │   ├── analyticsService.js  # Transparent data analysis and recommendations
 │   │   ├── exportService.js     # RFC 4180 CSV and PDF document generators
-│   │   └── authService.js       # Bcrypt password hashing & JWT generation
+│   │   ├── authService.js       # Bcrypt password hashing & JWT generation
+│   │   └── cacheService.js      # Redis in-memory cache layer with graceful fallback
 │   ├── middleware/
 │   │   ├── validate.js          # Input validation for student payloads
 │   │   ├── errorHandler.js      # Centralized error and conflict handling
@@ -246,14 +247,15 @@ GET /students?search=Rahul&course=CSE&page=1&limit=10&sort_by=name&order=ASC
 
 ## 🧪 Testing Verification Summary
  
-All 25 integration tests pass:
+All 26 integration tests pass:
 ```
 ==================================================
 🧪 Starting Automated Test Suite for EduManage Pro
 🎯 Testing Server at: http://localhost:3000
 ==================================================
   ✅ PASS: GET / returns welcome message
-  ✅ PASS: GET /health reports UP and connected database
+  ✅ PASS: GET /health reports UP, connected database, and cache status
+  ✅ PASS: Redis Cache: Second GET /students serves sub-millisecond cached data
   ✅ PASS: Security Headers: Helmet sets protection headers
   ✅ PASS: Rate Limiting: API requests receive RateLimit headers
   ✅ PASS: GET /api-docs/ serves interactive Swagger UI
@@ -278,6 +280,6 @@ All 25 integration tests pass:
   ✅ PASS: GET /students/export/csv downloads RFC 4180 CSV spreadsheet
   ✅ PASS: GET /students/export/pdf streams valid binary PDF report
 ==================================================
-📊 Test Summary: 25 Passed | 0 Failed
+📊 Test Summary: 26 Passed | 0 Failed
 ==================================================
 ```
