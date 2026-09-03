@@ -141,11 +141,28 @@ Access the application in your browser:
 * 💚 **Health Status**: `http://localhost:3000/health`
 
 ### 7. Full One-Command Launch with Docker Compose
-Alternatively, run both the Node.js API server and PostgreSQL container together:
+Alternatively, run both the Node.js API server, PostgreSQL container, and Redis cache together:
 ```powershell
 docker compose up --build
 ```
 * **Stop containers**: `docker compose down`
+
+---
+
+## ☁️ Cloud Deployment Blueprints (1-Click Hosting)
+
+### Deploy to Render.com
+1. Sign up at [render.com](https://render.com) and link your GitHub repository.
+2. Render automatically reads [`render.yaml`](file:///E:/student-management/render.yaml):
+   * Provisions managed **PostgreSQL 18** (`edumanage-postgres`)
+   * Provisions managed **Redis 7** (`edumanage-redis`)
+   * Automatically executes migrations and boots the Node.js API (`npm run deploy`)
+
+### Deploy to Railway.app
+1. Sign up at [railway.app](https://railway.app).
+2. Click **New Project** &rarr; **Deploy from GitHub repo**.
+3. Railway automatically detects [`railway.json`](file:///E:/student-management/railway.json) and [`Dockerfile`](file:///E:/student-management/Dockerfile).
+4. Add PostgreSQL and Redis plugins with 1 click in the Railway dashboard.
 
 
 ---

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "migrate": "node src/database/migrate.js",
+    "deploy": "node src/database/migrate.js && node server.js",
     "test": "node test.js"
   },
   "keywords": [

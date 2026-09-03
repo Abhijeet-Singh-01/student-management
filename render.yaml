@@ -1,0 +1,64 @@
+services:
+  # Web API & Single-Page Application Service
+  - type: web
+    name: edumanage-pro-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci
+    startCommand: npm run deploy
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DB_HOST
+        fromDatabase:
+          name: edumanage-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: edumanage-postgres
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: edumanage-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: edumanage-postgres
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: edumanage-postgres
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: edumanage-redis
+          property: connectionString
+      - key: CACHE_ENABLED
+        value: "true"
+      - key: CACHE_TTL
+        value: "300"
+
+  # Managed Redis In-Memory Cache
+  - type: redis
+    name: edumanage-redis
+    plan: free
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+
+databases:
+  # Managed PostgreSQL Database
+  - name: edumanage-postgres
+    plan: free
+    region: oregon
+    databaseName: studentdb
+    user: postgres
