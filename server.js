@@ -184,6 +184,20 @@ app.post("/students", async (req, res) => {
             });
         }
 
+
+        const existingStudent=await pool.query(
+            "SELECT id FROM students WHERE email = $1",
+            [email]
+        );
+
+        if(existingStudent.rows.length > 0){
+            return res.status(409).json({
+                error:"Email already exists"
+            });
+        }
+
+        
+
         const result = await pool.query(
             "INSERT INTO students (name, email, age, course) VALUES ($1, $2, $3, $4) RETURNING *",
             [name, email, age, course]
