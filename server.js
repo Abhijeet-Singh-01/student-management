@@ -35,7 +35,7 @@ app.get("/students", async (req, res) => {
         console.log(error);
 
         res.status(500).json({
-            error: error.message
+            error: "Failed to fetch students"
         });
     }
 });
@@ -55,7 +55,7 @@ app.get("/students/search", async (req, res) => {
         console.log(error);
 
         res.status(500).json({
-            error: error.message
+            error: "Failed to search students"
         });
     }
 });
@@ -87,7 +87,7 @@ app.get("/students/filter", async (req, res) => {
         console.log(error);
 
         res.status(500).json({
-            error: error.message
+            error: "Failed to filter students"
         });
     }
 });
@@ -111,7 +111,7 @@ app.get("/students/:id", async (req, res) => {
         console.log(error);
 
         res.status(500).json({
-            error: error.message
+            error: "Failed to fetch student"
         });
     }
 });
@@ -120,17 +120,15 @@ app.post("/students", async (req, res) => {
     try {
         const { name, email, age, course } = req.body;
 
-
-
-        if(!name || !email || !age || !course){
+        if (!name || !email || !age || !course) {
             return res.status(400).json({
-                error:"All fields are required"
+                error: "All fields are required"
             });
         }
 
-        if(age <=0){
+        if (age <= 0) {
             return res.status(400).json({
-                error:"age must be greater than 0"
+                error: "age must be greater than 0"
             });
         }
 
@@ -145,7 +143,7 @@ app.post("/students", async (req, res) => {
         console.log(error);
 
         res.status(500).json({
-            error: error.message
+            error: "Failed to create student"
         });
     }
 });
@@ -154,6 +152,18 @@ app.put("/students/:id", async (req, res) => {
     try {
         const id = req.params.id;
         const { name, email, age, course } = req.body;
+
+        if(!name || !email || !age || !course){
+            return res.status(400).json({
+                error:"All fields are required"
+            });
+        }
+
+        if(age <= 0){
+            return res.status(400).json({
+                error:"age must be greater than 0"
+            });
+        }
 
         const result = await pool.query(
             "UPDATE students SET name = $1, email = $2, age = $3, course = $4 WHERE id = $5 RETURNING *",
@@ -172,7 +182,7 @@ app.put("/students/:id", async (req, res) => {
         console.log(error);
 
         res.status(500).json({
-            error: error.message
+            error: "Failed to update student"
         });
     }
 });
@@ -201,9 +211,17 @@ app.delete("/students/:id", async (req, res) => {
         console.log(error);
 
         res.status(500).json({
-            error: error.message
+            error: "Failed to delete student"
         });
     }
+});
+
+app.use((err, req, res, next) => {
+    console.log(err);
+
+    res.status(500).json({
+        error: "Something went wrong on the server"
+    });
 });
 
 if (require.main === module) {
