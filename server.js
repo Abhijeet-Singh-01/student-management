@@ -92,6 +92,35 @@ app.get("/students/filter", async (req, res) => {
     }
 });
 
+app.get("/students/stats", async (req, res) => {
+    try {
+        const totalResult = await pool.query(
+            "SELECT COUNT(*) AS total FROM students"
+        );
+
+        const averageResult = await pool.query(
+            "SELECT AVG(age) AS average_age FROM students"
+        );
+
+        const courseResult = await pool.query(
+            "SELECT course, COUNT(*) AS count FROM students GROUP BY course ORDER BY course"
+        );
+
+        res.json({
+            totalStudents: parseInt(totalResult.rows[0].total),
+            averageAge: parseFloat(averageResult.rows[0].average_age),
+            courses: courseResult.rows
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: "Failed to fetch student statistics"
+        });
+    }
+});
+
 app.get("/students/:id", async (req, res) => {
     try {
         const result = await pool.query(
@@ -153,15 +182,15 @@ app.put("/students/:id", async (req, res) => {
         const id = req.params.id;
         const { name, email, age, course } = req.body;
 
-        if(!name || !email || !age || !course){
+        if (!name || !email || !age || !course) {
             return res.status(400).json({
-                error:"All fields are required"
+                error: "All fields are required"
             });
         }
 
-        if(age <= 0){
+        if (age <= 0) {
             return res.status(400).json({
-                error:"age must be greater than 0"
+                error: "age must be greater than 0"
             });
         }
 
