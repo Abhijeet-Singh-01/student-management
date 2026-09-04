@@ -15,11 +15,21 @@ app.get("/", (req, res) => {
 
 app.get("/students", async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        const offset = (page - 1) * limit;
+
         const result = await pool.query(
-            "SELECT id, name, email, age, course FROM students ORDER BY id"
+            "SELECT id, name, email, age, course FROM students ORDER BY id LIMIT $1 OFFSET $2",
+            [limit, offset]
         );
 
-        res.json(result.rows);
+        res.json({
+            page: page,
+            limit: limit,
+            students: result.rows
+        });
 
     } catch (error) {
         console.log(error);
@@ -50,7 +60,6 @@ app.get("/students/search", async (req, res) => {
     }
 });
 
-
 app.get("/students/filter", async (req, res) => {
     try {
         const { course, age } = req.query;
@@ -60,15 +69,15 @@ app.get("/students/filter", async (req, res) => {
 
         if (course) {
             values.push(course);
-            query += ` AND course ILIKE $${values.length} `;
+            query += ` AND course ILIKE $${values.length}`;
         }
 
         if (age) {
             values.push(age);
-            query += ` AND age = $${values.length} `;
+            query += ` AND age = $${values.length}`;
         }
 
-        query += "ORDER BY id";
+        query += " ORDER BY id";
 
         const result = await pool.query(query, values);
 
@@ -82,7 +91,6 @@ app.get("/students/filter", async (req, res) => {
         });
     }
 });
-
 
 app.get("/students/:id", async (req, res) => {
     try {
