@@ -1,65 +1,189 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
 
-const studentRoutes = require("./src/routes/studentRoutes");
-const healthRoutes = require("./src/routes/healthRoutes");
-const lookupRoutes = require("./src/routes/lookupRoutes");
-const authRoutes = require("./src/routes/authRoutes");
-const errorHandler = require("./src/middleware/errorHandler");
-const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("./src/docs/swaggerSpec");
-const { helmetSecurity, apiLimiter } = require("./src/middleware/security");
+const express = require("express");
+const pool = require("./db");
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
-// Security & Core Middleware
-app.use(helmetSecurity);
-app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Root route: serves UI to browsers, or welcome text to API clients
 app.get("/", (req, res) => {
-    if (req.headers.accept && req.headers.accept.includes("text/html")) {
-        return res.sendFile(path.join(__dirname, "public", "index.html"));
-    }
     res.send("Student Management API is running");
 });
 
-// Serve static frontend assets
-app.use(express.static(path.join(__dirname, "public")));
+app.get("/students", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT id, name, email, age, course FROM students ORDER BY id"
+        );
 
-// Health check routes
-app.use("/health", healthRoutes);
-app.use("/api/health", healthRoutes);
+        res.json(result.rows);
 
-// Student routes (mounted at /students for direct backward compatibility, and /api/v1/students)
-app.use("/students", apiLimiter, studentRoutes);
-app.use("/api/v1/students", apiLimiter, studentRoutes);
+    } catch (error) {
+        console.log(error);
 
-// Lookups for departments and courses
-app.use("/api/v1", apiLimiter, lookupRoutes);
-
-// Authentication routes
-app.use("/auth", apiLimiter, authRoutes);
-app.use("/api/v1/auth", apiLimiter, authRoutes);
-
-// Interactive Swagger / OpenAPI Documentation
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    customSiteTitle: "EduManage Pro — API Documentation"
-}));
-app.get("/api-docs.json", (req, res) => {
-    res.setHeader("Content-Type", "application/json");
-    res.send(swaggerSpec);
+        res.status(500).json({
+            error: error.message
+        });
+    }
 });
 
-// Centralized error handler
-app.use(errorHandler);
+app.get("/students/search", async (req, res) => {
+    try {
+        const name = req.query.name;
 
-// Start server
+        const result = await pool.query(
+            "SELECT id, name, email, age, course FROM students WHERE name ILIKE $1 ORDER BY id",
+            [`%${name}%`]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+
+app.get("/students/filter", async (req, res) => {
+    try {
+        const { course, age } = req.query;
+
+        let query = "SELECT id, name, email, age, course FROM students WHERE 1=1";
+        let values = [];
+
+        if (course) {
+            values.push(course);
+            query += ` AND course ILIKE $${values.length} `;
+        }
+
+        if (age) {
+            values.push(age);
+            query += ` AND age = $${values.length} `;
+        }
+
+        query += "ORDER BY id";
+
+        const result = await pool.query(query, values);
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+
+app.get("/students/:id", async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT id, name, email, age, course FROM students WHERE id = $1",
+            [req.params.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "Student not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+app.post("/students", async (req, res) => {
+    try {
+        const { name, email, age, course } = req.body;
+
+        const result = await pool.query(
+            "INSERT INTO students (name, email, age, course) VALUES ($1, $2, $3, $4) RETURNING *",
+            [name, email, age, course]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+app.put("/students/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { name, email, age, course } = req.body;
+
+        const result = await pool.query(
+            "UPDATE students SET name = $1, email = $2, age = $3, course = $4 WHERE id = $5 RETURNING *",
+            [name, email, age, course, id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "Student not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+app.delete("/students/:id", async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const result = await pool.query(
+            "DELETE FROM students WHERE id = $1 RETURNING *",
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "Student not found"
+            });
+        }
+
+        res.json({
+            message: "Student deleted successfully",
+            student: result.rows[0]
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
 if (require.main === module) {
     app.listen(PORT, () => {
         console.log(`server running on port ${PORT}`);

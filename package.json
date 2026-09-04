@@ -1,15 +1,10 @@
 {
   "name": "student-management",
   "version": "1.0.0",
-  "description": "Enterprise Student Management System",
+  "description": "Simple Student Management API",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "migrate": "node src/database/migrate.js",
-    "deploy": "node src/database/migrate.js && node server.js",
-    "backup": "node scripts/backup.js",
-    "restore": "node scripts/restore.js",
-    "test": "node test.js"
+    "start": "node server.js"
   },
   "keywords": [
     "student-management",
@@ -21,17 +16,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.7.0",
-    "helmet": "^8.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^9.1.1",
-    "pdfkit": "^0.20.2",
-    "pg": "^8.23.0",
-    "redis": "^6.2.1",
-    "swagger-ui-express": "^5.0.1"
+    "pg": "^8.23.0"
   }
 }
