@@ -15,19 +15,34 @@ app.get("/", (req, res) => {
 
 app.get("/students", async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page);
+        const limit = parseInt(req.query.limit);
 
-        const offset = (page - 1) * limit;
+        const currentPage = page > 0 ? page : 1;
+        const currentLimit = limit > 0 && limit <= 100 ? limit : 10;
+
+        if (req.query.page && page < 1) {
+            return res.status(400).json({
+                error: "Page must be greater than 0"
+            });
+        }
+
+        if (req.query.limit && (limit < 1 || limit > 100)) {
+            return res.status(400).json({
+                error: "Limit must be between 1 and 100"
+            });
+        }
+
+        const offset = (currentPage - 1) * currentLimit;
 
         const result = await pool.query(
             "SELECT id, name, email, age, course FROM students ORDER BY id LIMIT $1 OFFSET $2",
-            [limit, offset]
+            [currentLimit, offset]
         );
 
         res.json({
-            page: page,
-            limit: limit,
+            page: currentPage,
+            limit: currentLimit,
             students: result.rows
         });
 
