@@ -164,6 +164,14 @@ app.post("/students", async (req, res) => {
     try {
         const { name, email, age, course } = req.body;
 
+        const emailPattern =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if(!emailPattern.test(email)){
+            return res.status(400).json({
+                error:"Invalid email format"
+            });
+        }
+
         if (!name || !email || !age || !course) {
             return res.status(400).json({
                 error: "All fields are required"
@@ -197,9 +205,17 @@ app.put("/students/:id", async (req, res) => {
         const id = req.params.id;
         const { name, email, age, course } = req.body;
 
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
         if (!name || !email || !age || !course) {
             return res.status(400).json({
                 error: "All fields are required"
+            });
+        }
+
+        if(!emailPattern.test(email)){
+            return res.status(400).json({
+                error:"Invalid email format"
             });
         }
 
