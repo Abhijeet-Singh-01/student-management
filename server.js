@@ -120,6 +120,20 @@ app.post("/students", async (req, res) => {
     try {
         const { name, email, age, course } = req.body;
 
+
+
+        if(!name || !email || !age || !course){
+            return res.status(400).json({
+                error:"All fields are required"
+            });
+        }
+
+        if(age <=0){
+            return res.status(400).json({
+                error:"age must be greater than 0"
+            });
+        }
+
         const result = await pool.query(
             "INSERT INTO students (name, email, age, course) VALUES ($1, $2, $3, $4) RETURNING *",
             [name, email, age, course]
