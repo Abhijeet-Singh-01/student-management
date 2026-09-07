@@ -138,7 +138,9 @@ app.get("/students/stats", async (req, res) => {
 
         res.json({
             totalStudents: parseInt(totalResult.rows[0].total),
-            averageAge: parseFloat(averageResult.rows[0].average_age),
+            averageAge: averageResult.rows[0].average_age
+                ? parseFloat(averageResult.rows[0].average_age
+            )  :0,
             courses: courseResult.rows
         });
 
@@ -153,6 +155,14 @@ app.get("/students/stats", async (req, res) => {
 
 app.get("/students/:id", async (req, res) => {
     try {
+
+        const id=Number(req.params.id);
+
+        if(!Number.isInteger(id) || id<=0){
+            return res.status(400).json({
+                error : "ID must be a valid postive integer"
+            });
+        }
         const result = await pool.query(
             "SELECT id, name, email, age, course FROM students WHERE id = $1",
             [req.params.id]
