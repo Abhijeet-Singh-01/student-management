@@ -84,6 +84,16 @@ app.get("/students/filter", async (req, res) => {
     try {
         const { course, age } = req.query;
 
+         if(age !== undefined){
+            const parseaAge = Number(age);
+
+            if(!Number.isInteger(parseaAge) || parseaAge <=0){
+                return res.status(400).json({
+                    error:"Age must be a valid positive integer"
+                });
+            }
+         }
+
         let query = "SELECT id, name, email, age, course FROM students WHERE 1=1";
         let values = [];
 
