@@ -58,10 +58,15 @@ app.get("/students", async (req, res) => {
 app.get("/students/search", async (req, res) => {
     try {
         const name = req.query.name;
+        if (!name || typeof name !== "string" || !name.trim()) {
+            return res.status(400).json({
+                error: "Name is required"
+            });
+        }
 
         const result = await pool.query(
             "SELECT id, name, email, age, course FROM students WHERE name ILIKE $1 ORDER BY id",
-            [`%${name}%`]
+            [`%${name.trim()}%`]
         );
 
         res.json(result.rows);
