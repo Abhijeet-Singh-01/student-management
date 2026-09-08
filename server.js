@@ -328,6 +328,34 @@ app.delete("/students/:id", async (req, res) => {
     }
 });
 
+
+app.post("/notes", async(req,res) => {
+    try{
+        const {title,file_name} = req.body;
+        if(!title || file_name){
+            return res.status(400).json({
+                error:"Title and file name are required"
+            });
+        }
+
+        const result=await pool.query(
+            "INSERT INTO notes(title,file_name) VALUES ($1,$2) RETURNING *",
+            [title,file_name]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+
+    }catch(error){
+        console.log(error);
+
+        res.status(500).json({
+            errror:"failed to create notes"
+        });
+
+    }
+});
+
 app.use((err, req, res, next) => {
     console.log(err);
 
