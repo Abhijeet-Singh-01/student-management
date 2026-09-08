@@ -356,6 +356,22 @@ app.post("/notes", async(req,res) => {
     }
 });
 
+app.get("/notes",async(req,res)=>{
+    try{
+        const result=await pool.query(
+            "SELECT id,title,file_name,created_at FROM notes ORDER BY id"
+        );
+
+        res.json(result.rows);
+    } catch(error){
+        console.log(error);
+
+        res.status(500).json({
+            error:"failed to fetch notes"
+        });
+    }
+});
+
 app.use((err, req, res, next) => {
     console.log(err);
 
