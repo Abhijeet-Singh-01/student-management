@@ -332,7 +332,7 @@ app.delete("/students/:id", async (req, res) => {
 app.post("/notes", async(req,res) => {
     try{
         const {title,file_name} = req.body;
-        if(!title || file_name){
+        if(!title || !file_name){
             return res.status(400).json({
                 error:"Title and file name are required"
             });
