@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const pool = require("./db");
+const { parse } = require("dotenv");
 
 const app = express();
 
@@ -242,6 +243,14 @@ app.post("/students", async (req, res) => {
 app.put("/students/:id", async (req, res) => {
     try {
         const id = req.params.id;
+
+        const parseId=Number(id);
+
+        if(!Number.isInteger(parseId) || parseId <=0){
+            return res.status(400).json({
+                error:"ID must be a valid positive integer"
+            });
+        }
         const { name, email, age, course } = req.body;
 
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -258,17 +267,15 @@ app.put("/students/:id", async (req, res) => {
             });
         }
 
-        if (age <= 0) {
+        if(!Number.isInteger(Number(age)) || Number(age) <= 0){
             return res.status(400).json({
-                error: "age must be greater than 0"
+                error:"Age must be a valid positive integer"
             });
         }
-
         const result = await pool.query(
-            "UPDATE students SET name = $1, email = $2, age = $3, course = $4 WHERE id = $5 RETURNING *",
-            [name, email, age, course, id]
-        );
-
+    "UPDATE students SET name = $1, email = $2, age = $3, course = $4 WHERE id = $5 RETURNING *",
+    [name, email, age, course, parseId]
+);
         if (result.rows.length === 0) {
             return res.status(404).json({
                 message: "Student not found"
@@ -288,7 +295,13 @@ app.put("/students/:id", async (req, res) => {
 
 app.delete("/students/:id", async (req, res) => {
     try {
-        const id = req.params.id;
+        const id = Number(req.params.id);
+
+       if (!Number.isInteger(id) || id <= 0) {
+            return res.status(400).json({
+                error:"ID must be a valid positive integer"
+            });
+        }
 
         const result = await pool.query(
             "DELETE FROM students WHERE id = $1 RETURNING *",
