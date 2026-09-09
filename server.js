@@ -2,7 +2,6 @@ require("dotenv").config();
 
 const express = require("express");
 const pool = require("./db");
-const { parse } = require("dotenv");
 
 const app = express();
 
@@ -329,92 +328,6 @@ app.delete("/students/:id", async (req, res) => {
 });
 
 
-app.post("/notes", async(req,res) => {
-    try{
-        const {title,file_name} = req.body;
-        if(!title || !file_name){
-            return res.status(400).json({
-                error:"Title and file name are required"
-            });
-        }
-
-        const result=await pool.query(
-            "INSERT INTO notes(title,file_name) VALUES ($1,$2) RETURNING *",
-            [title,file_name]
-        );
-
-        res.status(201).json(result.rows[0]);
-
-
-    }catch(error){
-        console.log(error);
-
-        res.status(500).json({
-            errror:"failed to create notes"
-        });
-
-    }
-});
-
-app.get("/notes",async(req,res)=>{
-    try{
-
-        const id=Number(req.params.id);
-
-        if(!Number.isInteger(id) || id <= 0){
-            return res.status(400).json({
-                error:"ID must be a valid positive integer"
-            });
-        }
-        const result=await pool.query(
-            "SELECT id,title,file_name,created_at FROM notes ORDER BY id"
-            [id]
-        );
-
-        if(result.rows.length === 0){
-            return res.status(404).json({
-                message:"Note not found"
-            });
-        }
-
-        res.json(result.rows);
-    } catch(error){
-        console.log(error);
-
-        res.status(500).json({
-            error:"failed to fetch notes"
-        });
-    }
-});
-
-
-app.get("/notes/:id",async(req,res)=>{
-    try{
-        const id=Number(req.params.id);
-
-        if(!Number.isInteger(id) || id<=0){
-            return res.status(400).json({
-                error:"id must be a valid positive integer"
-            });
-        }
-        const result=await pool.query(
-            "SELECT id,title,file_name,created_at FROM notes WHERE id=$1",
-            [id]
-        );
-        if(result.rows.length === 0){
-            return res.status(404).json({
-                message:"Note not found"
-            });
-        }
-        res.json(result.rows[0]);
-    } catch(error){
-        console.log(error);
-
-        res.status(500).json({
-            error:"failed to fetch note"
-        });
-    }
-});
 
 app.use((err, req, res, next) => {
     console.log(err);
