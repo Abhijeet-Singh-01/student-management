@@ -4,7 +4,11 @@
   "description": "Simple Student Management API",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "server": "node server.js",
+    "client": "npm --prefix frontend run dev",
+    "build:client": "npm --prefix frontend run build",
+    "test": "node test.js"
   },
   "keywords": [
     "student-management",
